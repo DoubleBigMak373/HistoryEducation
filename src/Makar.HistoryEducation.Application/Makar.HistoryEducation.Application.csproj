@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Makar.HistoryEducation.Application.Contracts\Makar.HistoryEducation.Application.Contracts.csproj" />
+    <ProjectReference Include="..\Makar.HistoryEducation.Domain\Makar.HistoryEducation.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
