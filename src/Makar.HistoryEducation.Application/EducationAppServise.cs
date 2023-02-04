@@ -5,33 +5,34 @@ namespace Makar.HistoryEducation.Application
 {
     public class EducationAppServise : IEducationServiceAppContracts
     {
-        private readonly IExerciseRepository exerciseRepository;
+        private readonly IExerciseRepository _exerciseRepository;
          
         public EducationAppServise(IExerciseRepository exerciseRepository)
         {
-            this.exerciseRepository = exerciseRepository;
+            _exerciseRepository = exerciseRepository;
         }
 
         public async Task<List<CategoryDto>> GetCatalogAsync()
         {
-            var items = await exerciseRepository.GetCategoryListAsync();
+            var items = await _exerciseRepository.GetCategoryListAsync();
 
             return items
                 .Select(a => new CategoryDto()
                 {
                     Id = a.Id,
                     Name = a.Name,
-                }).ToList();
+                })
+                .ToList();
         }
 
         public Task<List<int>> GetCategoryExercisesAsync(int categoryId)
         {
-            throw new NotImplementedException();
+            return _exerciseRepository.GetCategoryExerciseIdsListAsync(categoryId);
         }
 
         public async Task<ExersiceEntityDto> GetExerciseAsync(int id)
         {
-            var entity = await exerciseRepository.GetExersiceById(id);
+            var entity = await _exerciseRepository.GetExersiceById(id);
 
             return new ExersiceEntityDto()
             {
@@ -41,11 +42,25 @@ namespace Makar.HistoryEducation.Application
             };
         }
 
-        public Task<VerifyResultDto> VerifyAnswerAsync(int exerciseId, string answer)
+        public async Task<VerifyResultDto> VerifyAnswerAsync(int exerciseId, string answer)
         {
-            throw new NotImplementedException();
+            var entity = await _exerciseRepository.GetExersiceById(exerciseId);
+            var entityAnswer = entity.CorrectAnswer;
+            var entityExplanation = entity.ExplanationExercise;
+
+            if (entityAnswer == answer)
+            {
+                return new VerifyResultDto()
+                {
+                    IsValid = true,
+                };
+            }
+
+            return new VerifyResultDto()
+            {
+                IsValid = false,
+                Explanation = entityExplanation,
+            };
         }
-
-
     }
 }

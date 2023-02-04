@@ -3,7 +3,6 @@
     public class VerifyResultDto
     {
         public bool IsValid { get; set; }
-        public string Explanation { get; set; }
-
+        public string? Explanation { get; set; }
     }
 }

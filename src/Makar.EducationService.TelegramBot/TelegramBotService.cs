@@ -1,9 +1,10 @@
-﻿using Telegram.Bot.Polling;
-using Telegram.Bot.Types.Enums;
+﻿using Makar.HistoryEducation.Application.Contracts;
+using Makar.HistoryEducation.Shared;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
+using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
-using Makar.HistoryEducation.Application.Contracts;
+using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Makar.EducationService.TelegramBot
@@ -43,41 +44,188 @@ namespace Makar.EducationService.TelegramBot
 
         async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
-            if (update.Message is not { } message)
+            // тут проверка что в бота прилетело обычное текстовое что-то
+            // и в метод полезет обработки текста
+            if (update.Type == UpdateType.Message)
+            {
+                await HandleMessageAsync(botClient, update, cancellationToken);
+
+                // возарат завершит работу метода, дальше не пойдет
                 return;
+            }
+
+            // если сюда дошло, значит предыдущая проверка не прошла и прилетело в бота не текст
+            // проверяю: а вдруг это колбек ебучий
+            if (update.CallbackQuery is not null)
+            {
+                // вызов метода обработки колбеков
+                await HandleCallbackAsync(botClient, update, cancellationToken);
+
+                return;
+            }
+
+            // тут дальше, если понадобится, что-то еще обработаешь: если прилетела залупа коня, то напишу метод обработки залуп коня
+        }
+
+        private async Task HandleCallbackAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        {
+            if (update.CallbackQuery?.Message is null)
+            {
+                throw new InvalidOperationException($"Обрабатываемое сообщение не является типом {UpdateType.CallbackQuery}");
+            }
+
+            if (DateTime.UtcNow - update.CallbackQuery.Message.Date > TimeSpan.FromMinutes(10))
+            {
+                return;
+            }
+
+            var chatId = update.CallbackQuery.Message.Chat.Id;
+
+            var callbackData = update.CallbackQuery.Data;
+
+            if (callbackData is not null && callbackData.StartsWith("category_"))
+            {
+                var categoryId = int.Parse(callbackData.Split("_").Last());
+                var exerciseIds = await _applicaiton.GetCategoryExercisesAsync(categoryId);
+
+                if (InMemoryChatStateStore.States.TryGetValue(chatId, out var state) && state.LastSendedExerciesId.HasValue)
+                {
+                    // TODO написать пользователю вы правда хотите задание по новой категории?
+                    // new_category_1
+
+                    Console.WriteLine("Кто-то нажал повторно кнопку с категорией, когда уже пошли задания");
+
+                    await botClient.SendTextMessageAsync(
+                       chatId: chatId,
+                       text: $"Вы уже выбрали категорию, пожалуйста завершите все задания. Осталось {state.GetExerciseCount()}",
+                       cancellationToken: cancellationToken);
+
+                    return;
+                }
+                else
+                {
+                    state = new ChatState(chatId, exerciseIds.Mix());
+                    InMemoryChatStateStore.States[chatId] = state;
+                }
+
+                if (state.TryGetNextExerciseId(out var exerciseId))
+                {
+                    var exersice = await _applicaiton.GetExerciseAsync(exerciseId.Value);
+
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: $@"
+                            Начнем выполнение заданий!
+                            {exersice.Title}
+                            {exersice.Body}
+                        ",
+                        cancellationToken: cancellationToken);
+                }
+
+                Console.WriteLine($"Pressed button = {callbackData}");
+            }
+        }
+
+        private async Task HandleMessageAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        {
+            if (update.Message is null)
+            {
+                throw new InvalidOperationException($"Обрабатываемое сообщение не является типом {UpdateType.Message}");
+            }
+
+            if (DateTime.UtcNow - update.Message.Date > TimeSpan.FromMinutes(10))
+            {
+                return;
+            }
+
             // Only process text messages
-            if (message.Text is not { } messageText)
+            if (update.Message.Text is not { } messageText)
                 return;
 
-            var chatId = message.Chat.Id;
+            var chatId = update.Message.Chat.Id;
 
             Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
 
-            // Echo received message text
-            await botClient.SendTextMessageAsync(
-                chatId: chatId,
-                text: $@"
-                    Здорова, {message.Chat.FirstName} {message.Chat.LastName}, я - Макар, а это - мой бот.
-                    Отправь мне <b>/categories</b> для старта
-                ",
-                parseMode: ParseMode.Html,
-                cancellationToken: cancellationToken);
+            // иначе эта бебра на любой бздеж будет в ответе
+            if (messageText == "/start")
+            {
+                await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: $@"
+                        Приветствую! Я - Макар Андреевич, а это - мой бот.
+                        Сие творение поможет вам достойно сдать ЕГЭ. 
+                        Отправь мне <b>/categories</b> для старта
+                    ",
+                    parseMode: ParseMode.Html,
+                    cancellationToken: cancellationToken);
+
+                return;
+            }
 
             if (messageText.ToLower() == "/categories")
             {
                 var categories = await _applicaiton.GetCatalogAsync();
 
                 var categoryReplies = categories
-                    .Select(category => InlineKeyboardButton.WithCallbackData(text: category.Name, callbackData: category.Id.ToString()))
+                    .Select(category => InlineKeyboardButton.WithCallbackData(text: category.Name, callbackData: $"category_{category.Id}"))
                     .ToList();
 
-                InlineKeyboardMarkup inlineKeyboard = new(categoryReplies);
+                InlineKeyboardMarkup keyboard = new(categoryReplies);
 
                 await botClient.SendTextMessageAsync(
-                chatId: chatId,
-                text: "Вот мои категории заданий",
-                replyMarkup: inlineKeyboard,
-                cancellationToken: cancellationToken);
+                    chatId: chatId,
+                    text: "Вот мои категории заданий",
+                    replyMarkup: keyboard,
+                    cancellationToken: cancellationToken);
+
+                return;
+            }
+
+            if (InMemoryChatStateStore.States.TryGetValue(chatId, out var state) && state.LastSendedExerciesId.HasValue)
+            {
+                var verifyResult = await _applicaiton.VerifyAnswerAsync(state.LastSendedExerciesId.Value, messageText);
+
+                if (verifyResult.IsValid)
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Правильный ответ!",
+                        cancellationToken: cancellationToken);
+
+                    // следующее задание
+                    if (state.TryGetNextExerciseId(out var nextExerciseId))
+                    {
+                        var exersice = await _applicaiton.GetExerciseAsync(nextExerciseId.Value);
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: $@"
+                                {exersice.Title}
+                                {exersice.Body}
+                            ",
+                            parseMode: ParseMode.Html,
+                            cancellationToken: cancellationToken);
+                    }
+                    else
+                    {
+                        InMemoryChatStateStore.States.Remove(chatId);
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Все задания по категории закончились, поздравляю! Можете выбрать другую .....",
+                            cancellationToken: cancellationToken);
+                    }
+                }
+                else
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: $@"
+                            Неправильный ответ! Вот объяснение, посмотри внимательно и реши снова!
+                            {verifyResult.Explanation}
+                        ",
+                        cancellationToken: cancellationToken);
+                }
             }
         }
 

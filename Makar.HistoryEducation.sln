@@ -3,17 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Makar.HistoryEducation.Domain", "src\Makar.HistoryEducation.Domain\Makar.HistoryEducation.Domain.csproj", "{70AC3D73-CEDF-40D3-887E-DD5F7CF29043}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Makar.HistoryEducation.Domain", "src\Makar.HistoryEducation.Domain\Makar.HistoryEducation.Domain.csproj", "{70AC3D73-CEDF-40D3-887E-DD5F7CF29043}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Makar.HistoryEducation.Application.Contracts", "src\Makar.HistoryEducation.Application.Contracts\Makar.HistoryEducation.Application.Contracts.csproj", "{32556B3B-FF67-4588-B594-CBB6CCD42CB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Makar.HistoryEducation.Application.Contracts", "src\Makar.HistoryEducation.Application.Contracts\Makar.HistoryEducation.Application.Contracts.csproj", "{32556B3B-FF67-4588-B594-CBB6CCD42CB4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Makar.HistoryEducation.Application", "src\Makar.HistoryEducation.Application\Makar.HistoryEducation.Application.csproj", "{0C1CDC7E-3C96-48C7-BE0D-DA508F3B547A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Makar.HistoryEducation.Application", "src\Makar.HistoryEducation.Application\Makar.HistoryEducation.Application.csproj", "{0C1CDC7E-3C96-48C7-BE0D-DA508F3B547A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Makar.HistoryEducation.Infrastructure", "src\Makar.HistoryEducation.Infrastructure\Makar.HistoryEducation.Infrastructure.csproj", "{240D21B0-0F73-4811-AF75-9753C6DA857C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Makar.HistoryEducation.Infrastructure", "src\Makar.HistoryEducation.Infrastructure\Makar.HistoryEducation.Infrastructure.csproj", "{240D21B0-0F73-4811-AF75-9753C6DA857C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Makar.EducationService.TelegramBot", "src\Makar.EducationService.TelegramBot\Makar.EducationService.TelegramBot.csproj", "{B65D7A76-6DEA-461F-8CF7-495BE0D15607}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Makar.EducationService.TelegramBot", "src\Makar.EducationService.TelegramBot\Makar.EducationService.TelegramBot.csproj", "{B65D7A76-6DEA-461F-8CF7-495BE0D15607}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Makar.HistoryEducation.Console", "src\Makar.HistoryEducation.Console\Makar.HistoryEducation.Console.csproj", "{678C8EC6-F56D-4051-AC38-CA562F92A8C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Makar.HistoryEducation.Console", "src\Makar.HistoryEducation.Console\Makar.HistoryEducation.Console.csproj", "{678C8EC6-F56D-4051-AC38-CA562F92A8C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Makar.HistoryEducation.Shared", "src\Makar.HistoryEducation.Shared\Makar.HistoryEducation.Shared.csproj", "{A20DCCB4-B3F8-4DBC-A5CD-9E6446286DCC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{678C8EC6-F56D-4051-AC38-CA562F92A8C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{678C8EC6-F56D-4051-AC38-CA562F92A8C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{678C8EC6-F56D-4051-AC38-CA562F92A8C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A20DCCB4-B3F8-4DBC-A5CD-9E6446286DCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A20DCCB4-B3F8-4DBC-A5CD-9E6446286DCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A20DCCB4-B3F8-4DBC-A5CD-9E6446286DCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A20DCCB4-B3F8-4DBC-A5CD-9E6446286DCC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
