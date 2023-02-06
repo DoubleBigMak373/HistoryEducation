@@ -45,17 +45,16 @@ namespace Makar.EducationService.TelegramBot
         async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             // тут проверка что в бота прилетело обычное текстовое что-то
-            // и в метод полезет обработки текста
             if (update.Type == UpdateType.Message)
             {
                 await HandleMessageAsync(botClient, update, cancellationToken);
 
-                // возарат завершит работу метода, дальше не пойдет
+                
                 return;
             }
 
             // если сюда дошло, значит предыдущая проверка не прошла и прилетело в бота не текст
-            // проверяю: а вдруг это колбек ебучий
+            // проверяю: а вдруг это колбек
             if (update.CallbackQuery is not null)
             {
                 // вызов метода обработки колбеков
@@ -63,8 +62,6 @@ namespace Makar.EducationService.TelegramBot
 
                 return;
             }
-
-            // тут дальше, если понадобится, что-то еще обработаешь: если прилетела залупа коня, то напишу метод обработки залуп коня
         }
 
         private async Task HandleCallbackAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
@@ -146,7 +143,6 @@ namespace Makar.EducationService.TelegramBot
 
             Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
 
-            // иначе эта бебра на любой бздеж будет в ответе
             if (messageText == "/start")
             {
                 await botClient.SendTextMessageAsync(
